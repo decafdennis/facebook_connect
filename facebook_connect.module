@@ -1,0 +1,88 @@
+<?php
+// Developed by Dennis Stevense for Digital Deployment
+
+define('FACEBOOK_CONNECT_APP_ID', 'facebook_connect_app_id');
+
+function facebook_connect_menu() {
+  $items = array();
+  
+  $items['admin/settings/facebook_connect'] = array(
+    'title' => 'Facebook connect',
+    'description' => 'Configure Facebook integration with your site.',
+    'page callback'  => 'drupal_get_form',
+    'page arguments' => array('facebook_connect_admin_settings'),
+    'access arguments' => array('administer site configuration'),
+    'file' => 'facebook_connect.admin.inc',
+  );
+  
+  return $items;
+}
+
+function facebook_connect_block($op = 'list', $delta = 0, $edit = array()) {
+  switch ($op) {
+    case 'list':
+      $blocks = array();
+      
+      $blocks['login_box'] = array(
+        'info' => t('Facebook connect login box'),
+      );
+      
+      $blocks['like_button'] = array(
+        'info' => t('Facebook connect like button'),
+      );
+      
+      return $blocks;
+      
+    case 'view':
+      return call_user_func('facebook_connect_block_' . $delta . '_view');
+  }
+}
+
+function facebook_connect_block_login_box_view() {
+  return array(
+    'content' => facebook_connect_login_box(),
+  );
+}
+
+function facebook_connect_block_like_button_view() {
+  return array(
+    'content' => facebook_connect_like_button(),
+  );
+}
+
+function facebook_connect_theme() {
+  $theme = array();
+  
+  $theme['facebook_connect_login_box'] = array(
+    'template' => 'facebook-connect-login-box',
+  );
+  
+  $theme['facebook_connect_like_button'] = array(
+    'template' => 'facebook-connect-like-button',
+  );
+  
+  return $theme;
+}
+
+function facebook_connect_login_box() {
+  drupal_add_css(drupal_get_path('module', 'facebook_connect') . '/facebook_connect.css');
+  drupal_add_js(drupal_get_path('module', 'facebook_connect') . '/facebook_connect.js');
+  
+  $settings = array(
+    'appID' => variable_get(FACEBOOK_CONNECT_APP_ID, NULL),
+  );
+  drupal_add_js(array('facebookConnect' => $settings), 'setting');
+
+  return theme('facebook_connect_login_box');
+}
+
+function facebook_connect_like_button() {
+  drupal_add_css(drupal_get_path('module', 'facebook_connect') . '/facebook_connect.css');
+  drupal_add_js(drupal_get_path('module', 'facebook_connect') . '/facebook_connect.js');
+  
+  return theme('facebook_connect_like_button');
+}
+
+function template_preprocess_facebook_connect_like_button(&$variables) {
+  $variables['like_url'] = url($_GET['q'], array('absolute' => TRUE));
+}

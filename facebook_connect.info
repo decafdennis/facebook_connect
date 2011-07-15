@@ -1,0 +1,4 @@
+; Developed by Dennis Stevense for Digital Deployment
+name = Facebook Connect
+description = Allows you to integrate Facebook with your site.
+core = 6.x
