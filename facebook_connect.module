@@ -82,7 +82,7 @@ function facebook_connect_block_like_button_site_view() {
 function facebook_connect_link($type, $object, $teaser = FALSE) {
   $links = array();
   
-  if ($type == 'node' && $teaser && variable_get(FACEBOOK_CONNECT_NODE_LIKE_BUTTONS, FALSE)) {
+  if ($type == 'node' && variable_get(FACEBOOK_CONNECT_NODE_LIKE_BUTTONS, FALSE)) {
     $node = $object;
     
     $links['facebook_connect_like_button'] = array(
