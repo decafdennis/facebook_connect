@@ -68,7 +68,7 @@ function facebook_connect_link($type, $object, $teaser = FALSE) {
     $node = $object;
     
     $links['facebook_connect_like_button'] = array(
-      'title' => facebook_connect_like_button('node/' . $node->nid),
+      'title' => facebook_connect_like_button('node/' . $node->nid, array('send' => TRUE)),
       'html' => TRUE,
     );
   }
@@ -84,7 +84,7 @@ function facebook_connect_theme() {
   );
   
   $theme['facebook_connect_like_button'] = array(
-    'arguments' => array('like_path' => NULL),
+    'arguments' => array('like_path' => NULL, 'options' => array()),
     'template' => 'facebook-connect-like-button',
   );
   
@@ -103,29 +103,38 @@ function facebook_connect_login_box() {
   return theme('facebook_connect_login_box');
 }
 
-function facebook_connect_like_button($like_path = NULL) {
+function facebook_connect_like_button($like_path = NULL, $options = array()) {
   drupal_add_css(drupal_get_path('module', 'facebook_connect') . '/facebook_connect.css');
   drupal_add_js(drupal_get_path('module', 'facebook_connect') . '/facebook_connect.js');
   
-  return theme('facebook_connect_like_button', $like_path);
+  return theme('facebook_connect_like_button', $like_path, $options);
 }
 
-function facebook_connect_like_button_site() {
+function facebook_connect_like_button_site($options = array()) {
   $like_path = variable_get(FACEBOOK_CONNECT_SITE_LIKE_PATH, NULL);
   
   if (empty($like_path)) {
     $like_path = '<front>';
   }
   
-  return facebook_connect_like_button($like_path);
+  return facebook_connect_like_button($like_path, $options);
 }
 
 function template_preprocess_facebook_connect_like_button(&$variables) {
+  // Determine the URL to like from the path
   if (!empty($variables['like_path'])) {
     $variables['like_url'] = url($variables['like_path'], array('absolute' => TRUE));
   }
   else {
     $variables['like_url'] = NULL;
   }
+
+  // Supply default options
+  $variables['options'] += array(
+    'send' => FALSE,
+  );
   
+  // Supply useful variables for rendering an fb:like element
+  $variables['fb_href'] = !empty($variables['like_url']) ? $variables['like_url'] : '';
+  $variables['fb_send'] = $variables['options']['send'] ? 'true' : 'false';
 }
