@@ -18,6 +18,12 @@ function facebook_connect_admin_settings() {
     '#default_value' => variable_get(FACEBOOK_CONNECT_SITE_LIKE_PATH, NULL),
   );
   
+  $form[FACEBOOK_CONNECT_NODE_LIKE_BUTTONS] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Show <em>Like</em> buttons on node teasers'),
+    '#default_value' => variable_get(FACEBOOK_CONNECT_NODE_LIKE_BUTTONS, FALSE),
+  );
+  
   $form = system_settings_form($form);
   $form['#submit'][] = 'facebook_connect_admin_settings_submit';
   

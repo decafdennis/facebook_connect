@@ -3,6 +3,7 @@
 
 define('FACEBOOK_CONNECT_APP_ID', 'facebook_connect_app_id');
 define('FACEBOOK_CONNECT_SITE_LIKE_PATH', 'facebook_connect_site_like_path');
+define('FACEBOOK_CONNECT_NODE_LIKE_BUTTONS', 'facebook_connect_node_like_buttons');
 
 function facebook_connect_menu() {
   $items = array();
@@ -58,6 +59,21 @@ function facebook_connect_block_like_button_site_view() {
   return array(
     'content' => facebook_connect_like_button_site(),
   );
+}
+
+function facebook_connect_link($type, $object, $teaser = FALSE) {
+  $links = array();
+  
+  if ($type == 'node' && $teaser && variable_get(FACEBOOK_CONNECT_NODE_LIKE_BUTTONS, FALSE)) {
+    $node = $object;
+    
+    $links['facebook_connect_like_button'] = array(
+      'title' => facebook_connect_like_button('node/' . $node->nid),
+      'html' => TRUE,
+    );
+  }
+  
+  return $links;
 }
 
 function facebook_connect_theme() {
