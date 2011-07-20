@@ -4,6 +4,7 @@
 define('FACEBOOK_CONNECT_APP_ID', 'facebook_connect_app_id');
 define('FACEBOOK_CONNECT_SITE_LIKE_PATH', 'facebook_connect_site_like_path');
 define('FACEBOOK_CONNECT_NODE_LIKE_BUTTONS', 'facebook_connect_node_like_buttons');
+define('FACEBOOK_CONNECT_NODE_COMMENTS', 'facebook_connect_node_comments');
 
 function facebook_connect_menu() {
   $items = array();
@@ -18,6 +19,23 @@ function facebook_connect_menu() {
   );
   
   return $items;
+}
+
+function facebook_connect_nodeapi(&$node, $op, $teaser = FALSE, $page = FALSE) {
+  switch ($op) {
+    case 'view':
+      facebook_connect_node_view_alter($node, $node->content, $teaser, $page);
+      break;
+  }
+}
+
+function facebook_connect_node_view_alter($node, &$build, $teaser = FALSE, $page = FALSE) {
+  if ($page && $node->comment && variable_get(FACEBOOK_CONNECT_NODE_COMMENTS, FALSE)) {
+    $build['facebook_connect_comments'] = array(
+      '#value' => facebook_connect_comments('node/' . $node->nid),
+      '#weight' => 50,
+    );
+  }
 }
 
 function facebook_connect_block($op = 'list', $delta = 0, $form_values = array()) {
@@ -76,6 +94,15 @@ function facebook_connect_link($type, $object, $teaser = FALSE) {
   return $links;
 }
 
+function facebook_connect_link_alter(&$links, $node, $comment = NULL) {
+  if (variable_get(FACEBOOK_CONNECT_NODE_COMMENTS, FALSE)) {
+    unset($links['comment_comments']);
+    unset($links['comment_new_comments']);
+    unset($links['comment_add']);
+    unset($links['comment_forbidden']);
+  }
+}
+
 function facebook_connect_theme() {
   $theme = array();
   
@@ -86,6 +113,11 @@ function facebook_connect_theme() {
   $theme['facebook_connect_like_button'] = array(
     'arguments' => array('like_path' => NULL, 'options' => array()),
     'template' => 'facebook-connect-like-button',
+  );
+  
+  $theme['facebook_connect_comments'] = array(
+    'arguments' => array('comment_path' => NULL),
+    'template' => 'facebook-connect-comments',
   );
   
   return $theme;
@@ -120,6 +152,13 @@ function facebook_connect_like_button_site($options = array()) {
   return facebook_connect_like_button($like_path, $options);
 }
 
+function facebook_connect_comments($comment_path = NULL) {
+  drupal_add_css(drupal_get_path('module', 'facebook_connect') . '/facebook_connect.css');
+  drupal_add_js(drupal_get_path('module', 'facebook_connect') . '/facebook_connect.js');
+  
+  return theme('facebook_connect_comments', $comment_path);
+}
+
 function template_preprocess_facebook_connect_like_button(&$variables) {
   // Determine the URL to like from the path
   if (!empty($variables['like_path'])) {
@@ -137,4 +176,17 @@ function template_preprocess_facebook_connect_like_button(&$variables) {
   // Supply useful variables for rendering an fb:like element
   $variables['fb_href'] = !empty($variables['like_url']) ? $variables['like_url'] : '';
   $variables['fb_send'] = $variables['options']['send'] ? 'true' : 'false';
+}
+
+function template_preprocess_facebook_connect_comments(&$variables) {
+  // Determine the URL to like from the path
+  if (!empty($variables['comment_path'])) {
+    $variables['comment_url'] = url($variables['comment_path'], array('absolute' => TRUE));
+  }
+  else {
+    $variables['comment_url'] = NULL;
+  }
+
+  // Supply useful variables for rendering an fb:comments element
+  $variables['fb_href'] = !empty($variables['comment_url']) ? $variables['comment_url'] : '';
 }

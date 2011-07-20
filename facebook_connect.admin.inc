@@ -24,6 +24,12 @@ function facebook_connect_admin_settings() {
     '#default_value' => variable_get(FACEBOOK_CONNECT_NODE_LIKE_BUTTONS, FALSE),
   );
   
+  $form[FACEBOOK_CONNECT_NODE_COMMENTS] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Use Facebook for comments'),
+    '#default_value' => variable_get(FACEBOOK_CONNECT_NODE_COMMENTS, FALSE),
+  );
+  
   $form = system_settings_form($form);
   $form['#submit'][] = 'facebook_connect_admin_settings_submit';
   
